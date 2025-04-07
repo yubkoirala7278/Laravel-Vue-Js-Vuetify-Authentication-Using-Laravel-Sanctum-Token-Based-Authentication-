@@ -63,6 +63,11 @@ const routes = [
                 name: 'Dashboard',
                 component: () => import('@/views/backend/Home.vue'),
             },
+            {
+                path: "category",
+                name: "Category",
+                component: () => import("@/views/backend/category/Category.vue"),
+            },
         ],
     },
 ]
