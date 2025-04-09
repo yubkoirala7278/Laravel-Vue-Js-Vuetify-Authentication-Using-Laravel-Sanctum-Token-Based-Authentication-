@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ActiveCategoryResource;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Exception;
@@ -174,5 +175,15 @@ class CategoryController extends Controller
         });
 
         return response()->json(null, 204);
+    }
+
+
+    /**
+     * Fetch all active categories.
+     */
+    public function activeCategories(Request $request)
+    {
+        $categories = Category::where('status', 'active')->orderBy('name','asc')->get();
+        return ActiveCategoryResource::collection($categories);
     }
 }

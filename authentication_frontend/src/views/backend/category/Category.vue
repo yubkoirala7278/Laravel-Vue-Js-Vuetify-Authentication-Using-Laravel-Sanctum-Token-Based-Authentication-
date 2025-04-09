@@ -279,16 +279,16 @@ const deleteMultipleCategories = async () => {
                 </v-card-title>
                 <v-card-text class="pa-6">
                     <v-form ref="addForm" @submit.prevent="submitCategory" class="d-flex flex-column gap-4">
-                        <v-text-field v-model="newCategory.name" label="Category Name" prepend-icon="mdi-tag"
+                        <v-text-field v-model="newCategory.name" label="Category Name" prepend-inner-icon="mdi-tag"
                             density="comfortable" variant="outlined" color="teal-darken-2" class="rounded-lg mb-4"
                             :rules="rules.name" required :error-messages="serverErrors.name" />
                         <v-select v-model="newCategory.status" :items="[
                             { title: 'Active', value: 'active' },
                             { title: 'Inactive', value: 'inactive' }
-                        ]" label="Status" prepend-icon="mdi-toggle-switch" density="comfortable" variant="outlined"
-                            color="teal-darken-2" class="rounded-lg mb-4" :rules="rules.status" required
-                            :error-messages="serverErrors.status" />
-                        <v-file-input v-model="newCategory.image" label="Category Image" prepend-icon="mdi-image"
+                        ]" label="Status" prepend-inner-icon="mdi-toggle-switch" density="comfortable"
+                            variant="outlined" color="teal-darken-2" class="rounded-lg mb-4" :rules="rules.status"
+                            required :error-messages="serverErrors.status" />
+                        <v-file-input v-model="newCategory.image" label="Category Image" prepend-inner-icon="mdi-image"
                             accept="image/*" density="comfortable" variant="outlined" class="rounded-lg mb-4"
                             color="teal-darken-2" :rules="rules.image" required :error-messages="serverErrors.image" />
                         <v-btn type="submit" color="teal-darken-2" variant="flat" size="large" block
@@ -317,16 +317,16 @@ const deleteMultipleCategories = async () => {
                 </v-card-title>
                 <v-card-text class="pa-6">
                     <v-form ref="addForm" @submit.prevent="submitEditCategory" class="d-flex flex-column gap-4">
-                        <v-text-field v-model="newCategory.name" label="Category Name" prepend-icon="mdi-tag"
+                        <v-text-field v-model="newCategory.name" label="Category Name" prepend-inner-icon="mdi-tag"
                             density="comfortable" variant="outlined" color="teal-darken-2" class="rounded-lg mb-4"
                             :rules="rules.name" required :error-messages="serverErrors.name" />
                         <v-select v-model="newCategory.status" :items="[
                             { title: 'Active', value: 'active' },
                             { title: 'Inactive', value: 'inactive' }
-                        ]" label="Status" prepend-icon="mdi-toggle-switch" density="comfortable" variant="outlined"
-                            color="teal-darken-2" class="rounded-lg mb-4" :rules="rules.status" required
-                            :error-messages="serverErrors.status" />
-                        <v-file-input v-model="newCategory.image" label="Category Image" prepend-icon="mdi-image"
+                        ]" label="Status" prepend-inner-icon="mdi-toggle-switch" density="comfortable"
+                            variant="outlined" color="teal-darken-2" class="rounded-lg mb-4" :rules="rules.status"
+                            required :error-messages="serverErrors.status" />
+                        <v-file-input v-model="newCategory.image" label="Category Image" prepend-inner-icon="mdi-image"
                             accept="image/*" density="comfortable" variant="outlined" class="rounded-lg mb-4"
                             color="teal-darken-2" :rules="rules.image" :error-messages="serverErrors.image" />
                         <v-btn type="submit" color="teal-darken-2" variant="flat" size="large" block

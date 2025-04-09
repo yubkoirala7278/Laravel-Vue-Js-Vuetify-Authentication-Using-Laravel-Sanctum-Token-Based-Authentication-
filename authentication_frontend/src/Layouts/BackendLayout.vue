@@ -14,3 +14,9 @@ import Dashboard from './Dashboard.vue'
         </v-main>
     </v-app>
 </template>
+
+<style>
+.v-input__prepend {
+    display: none !important;
+}
+</style>

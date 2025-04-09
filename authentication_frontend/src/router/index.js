@@ -1,6 +1,5 @@
-// src/router/index.js
-import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
 const routes = [
     {
@@ -64,36 +63,64 @@ const routes = [
                 component: () => import('@/views/backend/Home.vue'),
             },
             {
-                path: "category",
-                name: "Category",
-                component: () => import("@/views/backend/category/Category.vue"),
+                path: 'category',
+                name: 'Category',
+                component: () => import('@/views/backend/category/Category.vue'),
+            },
+            {
+                path: 'product',
+                name: 'Product',
+                component: () => import('@/views/backend/products/Product.vue'),
+            },
+            {
+                path: 'product/add',
+                name: 'AddProduct',
+                component: () => import('@/views/backend/products/AddProduct.vue'),
+            },
+            {
+                path: 'product/edit/:slug',
+                name: 'EditProduct',
+                component: () => import('@/views/backend/products/EditProduct.vue'),
             },
         ],
     },
-]
+];
 
 const router = createRouter({
     history: createWebHistory(),
     routes,
-})
+});
 
+
+// Navigation guard
 router.beforeEach(async (to, from, next) => {
-    const auth = useAuthStore()
+    const auth = useAuthStore();
 
     // List of auth-related route names to restrict for authenticated users
-    const authRoutes = ['Login', 'EmailVerification', 'VerifyEmail', 'Register', 'ForgotPassword', 'ResetPassword']
+    const authRoutes = [
+        'Login',
+        'EmailVerification',
+        'VerifyEmail',
+        'Register',
+        'ForgotPassword',
+        'ResetPassword',
+    ];
 
-    // Redirect authenticated users away from auth routes
+    // If authenticated and trying to access an auth route, redirect to dashboard
     if (auth.isAuthenticated && authRoutes.includes(to.name)) {
-        return next('/admin/home')
+        // Use next() with a path instead of returning to avoid overwriting history
+        next('/admin/home');
     }
-
-    // Protect admin routes for unauthenticated users
-    if (to.meta.requiresAuth && !auth.isAuthenticated) {
-        return next('/login')
+    // If unauthenticated and trying to access a protected route, redirect to login
+    else if (to.meta.requiresAuth && !auth.isAuthenticated) {
+        // Store the intended destination for post-login redirect (optional)
+        sessionStorage.setItem('intendedRoute', to.fullPath);
+        next('/login');
     }
-
-    return next() // Proceed to the requested route
-})
+    // Allow navigation to proceed normally
+    else {
+        next();
+    }
+});
 
 export default router

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import api from '@/axios';
+import { showToast } from '@/utils/toast'; // Import toast utility
 
 export const useCategoryStore = defineStore('category', () => {
     // ========= State =========
@@ -9,6 +10,7 @@ export const useCategoryStore = defineStore('category', () => {
     const categoryErrors = ref({}); // Field-specific errors
     const loading = ref(false); // Loading state
     const pagination = ref({}); // Pagination metadata
+    const activeCategories = ref([]); // New state for active categories
 
     // ======= Fetch all categories (GET /api/category) =======
     const fetchCategories = async (page = 1, perPage = 10, search = '', sortBy = 'updated_at', sortDirection = 'desc', status = '') => {
@@ -65,22 +67,18 @@ export const useCategoryStore = defineStore('category', () => {
     };
 
     // ======= Store a new category (POST /api/category) =======
-    const storeCategory = async (categoryData) => {
+    const storeCategory = async (formData) => {
         try {
             loading.value = true;
             categoryErrors.value = {};
-
-            const formData = new FormData();
-            formData.append('name', categoryData.name);
-            formData.append('status', categoryData.status);
-            if (categoryData.image) formData.append('image', categoryData.image);
 
             const response = await api.post('/category', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
 
             const newCategory = response.data.data;
-            categories.value.unshift(newCategory); // Add to top of list
+            categories.value.unshift(newCategory);
+            showToast.success('Category added successfully!');
             return newCategory;
         } catch (error) {
             console.error('Store Category Error:', error.response?.data || error.message);
@@ -91,16 +89,13 @@ export const useCategoryStore = defineStore('category', () => {
         }
     };
 
+
     // ======= Update an existing category (PUT /api/category/{slug}) =======
-    const updateCategory = async (slug, categoryData) => {
+    const updateCategory = async (slug, formData) => {
         try {
             loading.value = true;
             categoryErrors.value = {};
 
-            const formData = new FormData();
-            formData.append('name', categoryData.name);
-            formData.append('status', categoryData.status);
-            if (categoryData.image) formData.append('image', categoryData.image);
             formData.append('_method', 'PUT');
 
             const response = await api.post(`/category/${slug}`, formData, {
@@ -120,6 +115,7 @@ export const useCategoryStore = defineStore('category', () => {
             loading.value = false;
         }
     };
+
 
     // ======= Delete a category (DELETE /api/category/{slug}) =======
     const deleteCategory = async (slug) => {
@@ -162,6 +158,21 @@ export const useCategoryStore = defineStore('category', () => {
         categoryErrors.value = {};
     };
 
+    // Fetch active categories (GET /api/categories/active)
+    const fetchActiveCategories = async () => {
+        try {
+            loading.value = true;
+            const response = await api.get('/category/active');
+            activeCategories.value = response.data.data || [];
+        } catch (error) {
+            console.error('Fetch Active Categories Error:', error.response?.data || error.message);
+            activeCategories.value = [];
+            throw error;
+        } finally {
+            loading.value = false;
+        }
+    };
+
     // ======= Return state and actions =======
     return {
         categories,
@@ -176,5 +187,7 @@ export const useCategoryStore = defineStore('category', () => {
         deleteCategory,
         deleteMultipleCategories,
         resetErrors,
+        fetchActiveCategories,
+        activeCategories
     };
 });

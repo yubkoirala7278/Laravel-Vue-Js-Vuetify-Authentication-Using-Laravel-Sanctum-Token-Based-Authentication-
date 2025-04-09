@@ -28,7 +28,8 @@ class ProductController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('status', 'like', '%' . $search . '%');
+                    ->orWhere('status', 'like', '%' . $search . '%')
+                    ->orWhere('price', 'like', '%' . $search . '%');
             });
         }
 
@@ -125,8 +126,18 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $data = $request->only(['name', 'status']);
+        // Prepare data for update, including all validated fields
+        $data = $request->only([
+            'name',
+            'description',
+            'price',
+            'compare_price',
+            'is_featured',
+            'status',
+            'category_id'
+        ]);
 
+        // Handle image upload
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($product->image && Storage::disk('public')->exists($product->image)) {
@@ -137,6 +148,7 @@ class ProductController extends Controller
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
+        // Update the product with all data
         $product->update($data);
 
         return (new ProductResource($product))->response()->setStatusCode(200);

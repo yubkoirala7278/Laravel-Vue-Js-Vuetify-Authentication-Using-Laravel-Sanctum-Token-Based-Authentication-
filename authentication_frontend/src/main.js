@@ -12,6 +12,10 @@ import router from './router'
 // Import Vuetify configuration
 import vuetify from './plugins/vuetify'
 import '@mdi/font/css/materialdesignicons.css';
+
+import 'vue3-toastify/dist/index.css'; // Import default styles
+
+
 // Create an instance of Pinia
 const pinia = createPinia();
 // Create a Vue application instance
@@ -22,5 +26,6 @@ app.use(pinia);
 app.use(router);
 // Use Vuetify for UI components
 app.use(vuetify);
+
 // Mount the app to the DOM
 app.mount('#app');
