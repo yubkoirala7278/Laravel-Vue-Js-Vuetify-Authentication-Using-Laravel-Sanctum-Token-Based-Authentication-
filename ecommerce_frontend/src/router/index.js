@@ -78,6 +78,11 @@ const routes = [
                 component: () => import('@/views/backend/brands/Brand.vue'),
             },
             {
+                path: 'colors',
+                name: 'Color',
+                component: () => import('@/views/backend/colors/Color.vue'),
+            },
+            {
                 path: 'product',
                 name: 'Product',
                 component: () => import('@/views/backend/products/Product.vue'),

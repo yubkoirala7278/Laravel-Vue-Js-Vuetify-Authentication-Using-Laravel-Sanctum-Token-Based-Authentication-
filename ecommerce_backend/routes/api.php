@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ColorController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SubCategoryController;
 use Illuminate\Http\Request;
@@ -41,6 +42,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/brands/active', [BrandController::class, 'activeBrands']);
     Route::delete('/brands/multiple', [BrandController::class, 'deleteMultiple'])->name('brands.deleteMultiple');
     Route::apiResource('brands',BrandController::class);
+
+    // colors
+    Route::get('/colors/active', [ColorController::class, 'activeColors']);
+    Route::apiResource('colors',ColorController::class);
 
     // products
     Route::apiResource('products', ProductController::class);

@@ -26,7 +26,7 @@ class Color extends Model
         });
     }
 
-    // generate new slug when category created
+    // generate new slug when color created
     private static function generateUniqueSlug()
     {
         do {

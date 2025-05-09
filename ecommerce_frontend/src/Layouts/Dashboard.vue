@@ -15,6 +15,7 @@ const navItems = [
     { title: "Category", icon: "mdi-cart", route: "/admin/category" },
     { title: "SubCategory", icon: "mdi-tag-multiple", route: "/admin/sub_category" },
     { title: "Brands", icon: "mdi-store", route: "/admin/brands" },
+    { title: "Colors", icon: "mdi-store", route: "/admin/colors" },
     { title: "Product", icon: "mdi-storefront", route: "/admin/product" },
 ];
 

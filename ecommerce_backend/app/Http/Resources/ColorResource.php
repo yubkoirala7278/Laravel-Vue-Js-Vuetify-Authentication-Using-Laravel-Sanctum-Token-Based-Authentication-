@@ -18,7 +18,9 @@ class ColorResource extends JsonResource
             'id'=>$this->id,
             'slug'=>$this->slug,
             'name'=>$this->name,
-            'status'=>$this->status
+            'status'=>$this->status,
+            'created_at' => $this->created_at->diffForHumans(),
+            'updated_at' => $this->updated_at->toDateTimeString(),
         ];
     }
 }
