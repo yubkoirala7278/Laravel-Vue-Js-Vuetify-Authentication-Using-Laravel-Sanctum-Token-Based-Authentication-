@@ -68,6 +68,16 @@ const routes = [
                 component: () => import('@/views/backend/category/Category.vue'),
             },
             {
+                path: 'sub_category',
+                name: 'SubCategory',
+                component: () => import('@/views/backend/sub_category/SubCategory.vue'),
+            },
+            {
+                path: 'brands',
+                name: 'Brand',
+                component: () => import('@/views/backend/brands/Brand.vue'),
+            },
+            {
                 path: 'product',
                 name: 'Product',
                 component: () => import('@/views/backend/products/Product.vue'),

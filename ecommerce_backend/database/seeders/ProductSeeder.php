@@ -28,7 +28,7 @@ class ProductSeeder extends Seeder
                 'description'   => fake()->paragraph(4),
                 'price'         => fake()->randomFloat(2, 10, 500),
                 'compare_price' => fake()->optional()->randomFloat(2, 20, 600),
-                'image'         => 'categories/X36DpCkGutI7XpdH7Zrofl2dQ9ov0bTmSplz3hZd.png',
+                'image'         => 'categories/DCqJ0UN2W4TazthTgjv4sPi764sq791fPsqCek9l.png',
                 'is_featured'   => fake()->randomElement(['Yes', 'No']),
                 'status'        => fake()->randomElement(['active', 'inactive']),
                 'category_id'   => fake()->randomElement($categories),

@@ -13,6 +13,8 @@ const drawer = ref(true);
 const navItems = [
     { title: "Dashboard", icon: "mdi-home", route: "/admin/home" },
     { title: "Category", icon: "mdi-cart", route: "/admin/category" },
+    { title: "SubCategory", icon: "mdi-tag-multiple", route: "/admin/sub_category" },
+    { title: "Brands", icon: "mdi-store", route: "/admin/brands" },
     { title: "Product", icon: "mdi-storefront", route: "/admin/product" },
 ];
 

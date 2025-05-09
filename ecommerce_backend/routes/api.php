@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\SubCategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +32,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/{category}', [CategoryController::class, 'update'])->name('categories.update');
         Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     });
+
+    // sub categories
+    Route::get('/sub_category/active', [SubCategoryController::class, 'activeSubCategories']);
+    Route::apiResource('sub_category', SubCategoryController::class);
+
+    // brands
+    Route::get('/brands/active', [BrandController::class, 'activeBrands']);
+    Route::delete('/brands/multiple', [BrandController::class, 'deleteMultiple'])->name('brands.deleteMultiple');
+    Route::apiResource('brands',BrandController::class);
 
     // products
     Route::apiResource('products', ProductController::class);

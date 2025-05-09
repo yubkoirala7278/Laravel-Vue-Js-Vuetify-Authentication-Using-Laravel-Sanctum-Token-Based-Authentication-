@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Product extends Model
+class SubCategory extends Model
 {
     use HasFactory;
-    protected $fillable = ['slug', 'name', 'description', 'image', 'price', 'compare_price', 'is_featured', 'status', 'category_id','sub_category_id','brand_id'];
+    protected $fillable = ['slug', 'name', 'status', 'category_id'];
 
     // use slug instead of id
     public function getRouteKeyName()
@@ -22,12 +22,12 @@ class Product extends Model
     {
         parent::boot();
 
-        static::creating(function ($product) {
-            $product->slug = static::generateUniqueSlug();
+        static::creating(function ($sub_category) {
+            $sub_category->slug = static::generateUniqueSlug();
         });
     }
 
-    // generate new slug when product created
+    // generate new slug when sub category created
     private static function generateUniqueSlug()
     {
         do {
@@ -38,16 +38,7 @@ class Product extends Model
     }
 
     // Relationship with category
-    public function category()
-    {
+    public function category(){
         return $this->belongsTo(Category::class);
-    }
-    // Relationship with sub category
-    public function subCategory(){
-        return $this->belongsTo(SubCategory::class);
-    }
-    // Relationship with brands
-    public function brands(){
-        return $this->belongsTo(Brand::class);
     }
 }
