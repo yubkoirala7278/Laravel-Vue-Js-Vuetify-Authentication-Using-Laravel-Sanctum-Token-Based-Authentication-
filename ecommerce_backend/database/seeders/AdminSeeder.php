@@ -18,7 +18,8 @@ class AdminSeeder extends Seeder
             'name'=>'admin',
             'email'=>'admin@admin.com',
             'password'=>Hash::make('12345'),
-            'email_verified_at'=>now()
+            'email_verified_at'=>now(),
+            'role'=>'admin'
         ]);
     }
 }

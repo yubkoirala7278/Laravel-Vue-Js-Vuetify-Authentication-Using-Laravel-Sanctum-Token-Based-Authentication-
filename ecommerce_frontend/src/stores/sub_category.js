@@ -144,10 +144,14 @@ export const useSubCategoryStore = defineStore('subCategory', () => {
     };
 
     // ======= Fetch active subcategories (GET /api/sub_category/active) =======
-    const fetchActiveSubCategories = async () => {
+    const fetchActiveSubCategories = async (categoryId = null) => {
         try {
             loading.value = true;
-            const response = await api.get('/sub_category/active');
+            const endpoint = categoryId
+                ? `/sub_category/active?category_id=${encodeURIComponent(categoryId)}`
+                : `/sub_category/active`;
+
+            const response = await api.get(endpoint);
             activeSubCategories.value = response.data.data || [];
         } catch (error) {
             console.error('Fetch Active SubCategories Error:', error.response?.data || error.message);
@@ -156,6 +160,10 @@ export const useSubCategoryStore = defineStore('subCategory', () => {
         } finally {
             loading.value = false;
         }
+    };
+
+    const clearSubCategories = async () => {
+        activeSubCategories.value = [];
     };
 
     // ======= Reset errors =======
@@ -177,6 +185,7 @@ export const useSubCategoryStore = defineStore('subCategory', () => {
         updateSubCategory,
         deleteSubCategory,
         fetchActiveSubCategories,
+        clearSubCategories,
         resetErrors,
     };
 });

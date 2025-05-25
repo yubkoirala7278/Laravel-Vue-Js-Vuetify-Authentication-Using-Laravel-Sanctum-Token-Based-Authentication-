@@ -1,12 +1,18 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useProductStore } from '@/stores/product'; // Adjust the path to your store
+import { ref, watch, onMounted } from 'vue';
+import { useProductStore } from '@/stores/product';
+import { useCategoryStore } from '@/stores/category';
 import { useRouter } from 'vue-router';
-import { useCategoryStore } from '@/stores/category'; // Adjust path
+import { useSubCategoryStore } from '@/stores/sub_category'; // New store
+import { useBrandStore } from '@/stores/brands'; // New store
+import { useColorStore } from '@/stores/colors'; // New store
 
-// Pinia store and router
+// Pinia stores and router
 const productStore = useProductStore();
 const categoryStore = useCategoryStore();
+const subCategoryStore = useSubCategoryStore();
+const brandStore = useBrandStore();
+const colorStore = useColorStore();
 const router = useRouter();
 
 // Form data
@@ -18,6 +24,9 @@ const form = ref({
     is_featured: 'No',
     status: 'active',
     category_id: '',
+    sub_category_id: '',
+    brand_id: '',
+    color_id: '',
     image: null,
 });
 
@@ -36,10 +45,13 @@ const rules = {
         v => (!isNaN(v) && v >= 0) || 'Price must be a positive number',
     ],
     compare_price: [
-        v => (!v || (!isNaN(v) && Number(v) > Number(form.value.price)) || 'Compare price must be greater than price')],
+        v => (!v || (!isNaN(v) && Number(v) > Number(form.value.price)) || 'Compare price must be greater than price'),],
     is_featured: [v => !!v || 'Featured status is required'],
     status: [v => !!v || 'Status is required'],
     category_id: [v => !!v || 'Category is required'],
+    sub_category_id: [v => !v || subCategoryStore.activeSubCategories.length > 0 || 'No subcategories available'],
+    brand_id: [v => !v || brandStore.activeBrands.length > 0 || 'No brands available'],
+    color_id: [v => !v || colorStore.activeColors.length > 0 || 'No colors available'],
     image: [v => !!v || 'Image is required'],
 };
 
@@ -53,10 +65,31 @@ const backendErrors = ref({});
 onMounted(async () => {
     try {
         await categoryStore.fetchActiveCategories();
+        await brandStore.fetchActiveBrands();
+        await colorStore.fetchActiveColors();
     } catch (error) {
         console.error('Failed to fetch active categories:', error);
     }
 });
+
+// Watch category_id to fetch related subcategories, brands, and colors
+watch(
+    () => form.value.category_id,
+    async (newCategoryId) => {
+        if (!newCategoryId) {
+            subCategoryStore.clearSubCategories();
+            form.value.sub_category_id = '';
+            return;
+        }
+        try {
+            await Promise.all([
+                subCategoryStore.fetchActiveSubCategories(newCategoryId),
+            ]);
+        } catch (error) {
+            console.error('Failed to fetch related data:', error);
+        }
+    }
+);
 
 // Handle file input
 const onFileChange = (event) => {
@@ -70,8 +103,14 @@ const submitForm = async () => {
 
     try {
         backendErrors.value = {}; // Clear previous errors
-        await productStore.storeProduct(form.value);
-        router.push({ name: 'Product' }); // Redirect to product list page
+        const formData = new FormData();
+        Object.entries(form.value).forEach(([key, value]) => {
+            if (value !== null && value !== '') {
+                formData.append(key, value);
+            }
+        });
+        await productStore.storeProduct(formData);
+        router.push({ name: 'Product' });
     } catch (error) {
         backendErrors.value = error.response?.data?.errors || { general: ['Failed to add product'] };
     }
@@ -87,6 +126,9 @@ const resetForm = () => {
         is_featured: 'No',
         status: 'active',
         category_id: '',
+        sub_category_id: '',
+        brand_id: '',
+        color_id: '',
         image: null,
     };
     backendErrors.value = {};
@@ -154,6 +196,26 @@ const resetForm = () => {
                                 variant="outlined" :rules="rules.category_id"
                                 :error-messages="backendErrors.category_id" class="rounded-lg mb-4"
                                 :loading="categoryStore.loading" />
+
+                            <!-- Product Select Subcategory -->
+                            <v-select label="Subcategory" v-model="form.sub_category_id"
+                                :items="subCategoryStore.activeSubCategories" item-value="id" item-title="name"
+                                prepend-inner-icon="mdi-shape-outline" variant="outlined" :rules="rules.sub_category_id"
+                                :error-messages="backendErrors.sub_category_id" class="rounded-lg mb-4"
+                                :loading="subCategoryStore.loading"
+                                :disabled="!form.category_id || subCategoryStore.activeSubCategories.length === 0" />
+
+                            <!-- Product Select Brand -->
+                            <v-select label="Brand" v-model="form.brand_id" :items="brandStore.activeBrands"
+                                item-value="id" item-title="name" prepend-inner-icon="mdi-tag" variant="outlined"
+                                :rules="rules.brand_id" :error-messages="backendErrors.brand_id" class="rounded-lg mb-4"
+                                :loading="brandStore.loading" :disabled="brandStore.activeBrands.length === 0" />
+
+                            <!-- Product Select Color -->
+                            <v-select label="Color" v-model="form.color_id" :items="colorStore.activeColors"
+                                item-value="id" item-title="name" prepend-inner-icon="mdi-palette" variant="outlined"
+                                :rules="rules.color_id" :error-messages="backendErrors.color_id" class="rounded-lg mb-4"
+                                :loading="colorStore.loading" :disabled="colorStore.activeColors.length === 0" />
 
                             <!-- Product Image -->
                             <v-file-input v-model="form.image" label="Product Image" prepend-inner-icon="mdi-camera"

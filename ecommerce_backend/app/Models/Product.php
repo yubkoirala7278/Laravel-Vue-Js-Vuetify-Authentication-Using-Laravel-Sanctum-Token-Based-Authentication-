@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class Product extends Model
 {
     use HasFactory;
-    protected $fillable = ['slug', 'name', 'description', 'image', 'price', 'compare_price', 'is_featured', 'status', 'category_id','sub_category_id','brand_id'];
+    protected $fillable = ['slug', 'name', 'description', 'image', 'price', 'compare_price', 'is_featured', 'status', 'category_id', 'sub_category_id', 'brand_id', 'color_id'];
 
     // use slug instead of id
     public function getRouteKeyName()
@@ -43,11 +43,19 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
     // Relationship with sub category
-    public function subCategory(){
+    public function subCategory()
+    {
         return $this->belongsTo(SubCategory::class);
     }
-    // Relationship with brands
-    public function brands(){
+    // Relationship with brand
+    public function brand()
+    {
         return $this->belongsTo(Brand::class);
+    }
+
+    // Relationship with color
+    public function color()
+    {
+        return $this->belongsTo(Color::class);
     }
 }

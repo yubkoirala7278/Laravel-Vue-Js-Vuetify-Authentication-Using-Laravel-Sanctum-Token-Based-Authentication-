@@ -108,7 +108,8 @@ const deleteProduct = async () => {
             <v-data-table-server v-model:items-per-page="itemsPerPage" :headers="headers" :items="productStore.products"
                 :items-length="productStore.pagination.total || 0" :loading="productStore.loading" item-value="id"
                 v-model:sort-by="sortBy" :items-per-page-options="[5, 10, 20, 50]" @update:options="loadItems"
-                height="550" fixed-header>
+                height="550" fixed-header
+                    hover>
                 <!-- S:N column -->
                 <template v-slot:item.sn="{ index }">
                     {{ (productStore.pagination.current_page - 1) * itemsPerPage + index + 1 }}
@@ -186,8 +187,11 @@ const deleteProduct = async () => {
     </v-container>
 </template>
 
-<style scoped>
+<style >
 .cursor-pointer {
     cursor: pointer;
+}
+table {
+    white-space: nowrap !important;
 }
 </style>

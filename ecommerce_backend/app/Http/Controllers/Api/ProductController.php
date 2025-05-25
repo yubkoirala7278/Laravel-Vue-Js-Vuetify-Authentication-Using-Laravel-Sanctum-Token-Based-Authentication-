@@ -19,12 +19,13 @@ class ProductController extends Controller
     {
         $perPage = $request->query('per_page', 10);
         $search = $request->query('search', '');
-        $status = $request->query('status', ''); // New status filter
+        $status = $request->query('status', '');
         $sortBy = $request->query('sort_by', 'created_at');
         $sortDirection = $request->query('sort_direction', 'desc');
 
-        $query = Product::with('category');
+        $query = Product::with(['category', 'subCategory', 'brand', 'color']);
 
+        // Search filter
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
@@ -33,15 +34,49 @@ class ProductController extends Controller
             });
         }
 
+        // Status filter
         if ($status) {
-            $query->where('status', $status); // Exact match for status
+            $query->where('status', $status);
         }
 
-        $allowedSorts = ['name', 'status', 'updated_at']; // Updated to include updated_at
-        $sortBy = in_array($sortBy, $allowedSorts) ? $sortBy : 'updated_at';
+        // Define allowed sort fields, including related table fields
+        $allowedSorts = [
+            'name' => 'products.name',
+            'status' => 'products.status',
+            'updated_at' => 'products.updated_at',
+            'category' => 'categories.name',
+            'sub_category' => 'sub_categories.name',
+            'brand' => 'brands.name',
+            'color' => 'colors.name',
+            'price'=>'products.price',
+            'compare_price'=>'products.compare_price',
+            'is_featured'=>'products.is_featured',
+        ];
+
+        // Validate sortBy and map to table-qualified column
+        $sortColumn = $allowedSorts[$sortBy] ?? 'products.updated_at';
         $sortDirection = in_array(strtolower($sortDirection), ['asc', 'desc']) ? $sortDirection : 'desc';
 
-        $query->orderBy($sortBy, $sortDirection);
+        // Join related tables for sorting
+        if (in_array($sortBy, ['category', 'sub_category', 'brand', 'color'])) {
+            if ($sortBy === 'category') {
+                $query->join('categories', 'products.category_id', '=', 'categories.id');
+            } elseif ($sortBy === 'sub_category') {
+                $query->leftJoin('sub_categories', 'products.sub_category_id', '=', 'sub_categories.id');
+            } elseif ($sortBy === 'brand') {
+                $query->leftJoin('brands', 'products.brand_id', '=', 'brands.id');
+            } elseif ($sortBy === 'color') {
+                $query->leftJoin('colors', 'products.color_id', '=', 'colors.id');
+            }
+        }
+
+        // Apply sorting
+        $query->orderBy($sortColumn, $sortDirection);
+
+        // Select only products table columns to avoid ambiguity
+        $query->select('products.*');
+
+        // Paginate results
         $products = $query->paginate($perPage);
 
         return ProductResource::collection($products);
@@ -50,7 +85,7 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -60,6 +95,9 @@ class ProductController extends Controller
             'is_featured' => 'required|in:Yes,No',
             'status' => 'required|in:active,inactive',
             'category_id' => 'required|exists:categories,id',
+            'sub_category_id' => 'nullable|exists:sub_categories,id',
+            'brand_id' => 'nullable|exists:brands,id',
+            'color_id' => 'nullable|exists:colors,id',
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
             'name.required' => 'The product name is required.',
@@ -69,6 +107,9 @@ class ProductController extends Controller
             'image.max' => 'The image must not be larger than 2MB.',
             'category_id.exists' => 'The selected category does not exist.',
             'category_id.required' => 'The category is required.',
+            'sub_category_id.exists' => 'The selected subcategory does not exist.',
+            'brand_id.exists' => 'The selected brand does not exist.',
+            'color_id.exists' => 'The selected color does not exist.',
         ]);
 
         if ($validator->fails()) {
@@ -81,6 +122,9 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');
         }
+
+        // Generate a unique slug
+        $data['slug'] = \Illuminate\Support\Str::slug($request->name) . '-' . uniqid();
 
         $product = Product::create($data);
 
@@ -105,9 +149,12 @@ class ProductController extends Controller
             'description' => 'required|string|min:10',
             'price' => 'required|numeric|min:0',
             'compare_price' => 'nullable|numeric|gt:price',
-            'is_featured' => 'required|in:Yes,No',
+             'is_featured' => 'required|in:Yes,No',
             'status' => 'required|in:active,inactive',
             'category_id' => 'required|exists:categories,id',
+            'sub_category_id' => 'nullable|exists:sub_categories,id',
+            'brand_id' => 'nullable|exists:brands,id',
+            'color_id' => 'nullable|exists:colors,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
             'name.required' => 'The product name is required.',
@@ -117,6 +164,9 @@ class ProductController extends Controller
             'image.max' => 'The image must not be larger than 2MB.',
             'category_id.exists' => 'The selected category does not exist.',
             'category_id.required' => 'The category is required.',
+            'sub_category_id.exists' => 'The selected subcategory does not exist.',
+            'brand_id.exists' => 'The selected brand does not exist.',
+            'color_id.exists' => 'The selected color does not exist.',
         ]);
 
         if ($validator->fails()) {
@@ -127,15 +177,7 @@ class ProductController extends Controller
         }
 
         // Prepare data for update, including all validated fields
-        $data = $request->only([
-            'name',
-            'description',
-            'price',
-            'compare_price',
-            'is_featured',
-            'status',
-            'category_id'
-        ]);
+        $data = $request->all();
 
         // Handle image upload
         if ($request->hasFile('image')) {

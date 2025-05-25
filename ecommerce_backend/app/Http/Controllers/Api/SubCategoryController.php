@@ -172,7 +172,13 @@ class SubCategoryController extends Controller
      */
     public function activeSubCategories(Request $request)
     {
-        $subCategories = SubCategory::where('status', 'active')->orderBy('name', 'asc')->get();
+        $query = SubCategory::where('status', 'active')->orderBy('name', 'asc');
+
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->query('category_id'));
+        }
+
+        $subCategories = $query->get();
         return ActiveSubCategoryResource::collection($subCategories);
     }
 }

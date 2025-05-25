@@ -16,10 +16,9 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             // fake data
             CategorySeeder::class,
-            ProductSeeder::class,
             BrandSeeder::class,
             ColorSeeder::class,
-
+            ProductSeeder::class,
         ]);
     }
 }
